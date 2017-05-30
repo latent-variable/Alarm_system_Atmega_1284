@@ -33,9 +33,14 @@ typedef struct _task {
 	int (*TickFct)(int); //Task tick function
 } task;
 
+
+////////////////////////////////////////////////////////////////////
+//**********************Get desired input*************************
+/////////////////////////////////////////////////////////////////
 enum Keypad_States{wait_input, input_press, input }key_state;
 int keypad(){
 	unsigned char x;
+	static unsigned char y;
 	x = GetKeypadKey();
 	switch(key_state){
 			case wait_input:
@@ -44,12 +49,13 @@ int keypad(){
 					key = 0xFF;
 				}else{
 					key_state = input_press;
-					key = x;
+					y = x;
 				}
 				break;
 			case input_press:
 				if(x == '\0'){
 					key_state = input;
+					key = y;
 				}else{
 					key_state = input_press;
 				}
@@ -101,6 +107,9 @@ unsigned char Room_temp(){
 	return 0x28;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//*********Main alarm system Tick funtion
+//
 enum AlarmStates{Alarm_menu_display, Alarm_menu,Alarm_on,Alarm_turn_off, Alarm_off,Alarm_settings_display, Alarm_settings, temp_settings, passcode_settings,code1,code2,code3,code4, Acode1,Acode2,Acode3,Acode4,Rcode1,Rcode2,Rcode3,Rcode4, }alarm_state;
 	
 int Alarm_tick(){
@@ -189,7 +198,7 @@ int Alarm_tick(){
 			if(key == 0xFF){
 				alarm_state = Acode3;
 			}else if(key == passcode[2]){
-				alarm_state = code4;
+				alarm_state = Acode4;
 				LCD_WriteData(key);
 			}else{
 				LCD_DisplayString(1,"Wrong try again!");
@@ -201,6 +210,7 @@ int Alarm_tick(){
 			if(key == 0xFF){
 				alarm_state = Acode4;
 			}else if(key == passcode[3]){
+				
 				alarm_state = Alarm_off;
 				LCD_WriteData(key);
 				delay_ms(100);
@@ -312,7 +322,7 @@ int Alarm_tick(){
 				alarm_state = Rcode3;
 			}else{
 				passcode[2] = key;
-				alarm_state = Rcode3;
+				alarm_state = Rcode4;
 				LCD_WriteData(key);
 			}
 			break;
@@ -324,8 +334,8 @@ int Alarm_tick(){
 				alarm_state = Alarm_settings_display;
 				LCD_WriteData(key);
 				delay_ms(100);
-				LCD_DisplayString(1, "New passcode set.");
-				delay_ms(1500);
+				LCD_DisplayString(1, "New passcode set");
+				delay_ms(2000);
 			}
 			break;
 		default:
@@ -357,8 +367,8 @@ int Alarm_tick(){
 		case Alarm_settings:
 			break;
 		case passcode_settings:
-			LCD_DisplayString(1, "Enter the four   digit code: ");
-			LCD_Cursor(29);
+			LCD_DisplayString(1, "Enter           passcode:");
+			LCD_Cursor(26);
 			break;
 		case temp_settings:
 			if (Temp_choice == 'F'){
@@ -426,7 +436,7 @@ int main()
 	
 	// Task 2
 	task2.state = 0;//Task initial state.
-	task2.period = 50;//Task Period.
+	task2.period = 100;//Task Period.
 	task2.elapsedTime = 1;//Task current elapsed time.
 	task2.TickFct = &keypad;//Function pointer for the tick.
 	
