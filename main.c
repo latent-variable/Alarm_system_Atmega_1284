@@ -118,12 +118,21 @@ int main()
 	Alarm_Status = 0x00;
 	Temp_choice = 'F';
 	
-	//default passcode
-	passcode[0] = '1';
-	passcode[1] = '2';
-	passcode[2] = '3';
-	passcode[3] = '4';
 
+	//Default passcode if not already saved in memory
+	if (EEPROM_read(1999) == EEPROM_read(2000)){
+		EEPROM_write(2000,'4');
+		EEPROM_write(2001,'3');
+		EEPROM_write(2002,'2');
+		EEPROM_write(2003,'1');
+	}
+	
+	//read from memory the code
+	passcode[0] = EEPROM_read(2000);
+	passcode[1] = EEPROM_read(2001);
+	passcode[2] = EEPROM_read(2002);
+	passcode[3] = EEPROM_read(2003);
+	
 	unsigned short i; // Scheduler for-loop iterator
 	while(1) {
 		// Scheduler code
