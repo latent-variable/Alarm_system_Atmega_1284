@@ -5,12 +5,15 @@
 enum AlarmStates{Alarm_menu_display, Alarm_menu,Alarm_on,Alarm_triggered1,Alarm_triggered2, Alarm_turn_off, Alarm_off,Alarm_settings_display, Alarm_settings, temp_settings, passcode_settings,code1,code2,code3,code4, Acode1,Acode2,Acode3,Acode4,Rcode1,Rcode2,Rcode3,Rcode4, }alarm_state;
 	
 int Alarm_tick(){
+	Temp_tick();
+	static unsigned char refresh;
 	unsigned char selection = key;
-	unsigned char temperature = 72;
+	unsigned char temperature = (unsigned char)Temp;
 	char mystr[5];
 	static unsigned char wrong;
 	switch(alarm_state){
 		case Alarm_menu_display:
+			refresh = 0x00;
 			sprintf( mystr, "%d", temperature);
 			if (Alarm_Status == 0){
 				LCD_DisplayString(1,"Alarm Off       A:ARM B:Settings"  );
@@ -41,6 +44,7 @@ int Alarm_tick(){
 			alarm_state = Alarm_menu;
 			break;
 		case Alarm_menu:
+			refresh++;
 			Beep_on = 0x00;
 			if(Alarm_Status != 0x00){
 				if(Detected == 0xFF){
@@ -48,11 +52,21 @@ int Alarm_tick(){
 					break;
 				}
 			}
-			if (selection == 'A'){
+			if ( BT == 'A'){
+				if(Alarm_Status == 0x00){
+					alarm_state = Alarm_on;
+					Beep_on = 0xFF;
+					break;
+				}else {
+						alarm_state = Alarm_off;
+						break;
+				}
+			}
+			if(selection == 'A'){
 				if(Alarm_Status == 0x00){
 					alarm_state = Alarm_on; 
 					Beep_on = 0xFF;
-					break;
+					break;	
 				}else{
 					alarm_state = Alarm_turn_off;
 					Beep_on = 0xFF;
@@ -63,7 +77,12 @@ int Alarm_tick(){
 			if (selection == 'B'){
 				alarm_state = Alarm_settings_display;
 				Beep_on = 0xFF;
-			}else{
+				break;
+			}
+			if(refresh >= 50 ){
+				alarm_state = Alarm_menu_display;
+			}
+			else{
 				alarm_state = Alarm_menu;
 			}
 			break;
