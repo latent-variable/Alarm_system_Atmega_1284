@@ -8,6 +8,8 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <math.h>
+#include "usart.h"
 #include "EEPROM.c"
 #include "Timer.c"
 #include "io.c"
@@ -22,13 +24,9 @@ unsigned char key;				// input from the keypad
 unsigned char Temp_choice;		//
 unsigned char Detected;			//Alarm has been Triggered
 unsigned char Beep_on;	
+unsigned char BT;
+unsigned char Temp;
 
-////////////State machine code////////////
-#include "PIR.c"
-#include "key.c"
-#include "Alarm.c"
-#include "Sound.c"
-/////////////////////////////////////////
 
 //--------Task scheduler data structure---------------------------------------
 // Struct for Tasks represent a running process in our simple real-time operating system.
@@ -42,6 +40,13 @@ typedef struct _task {
 } task;
 
 
+////////////State machine code////////////
+#include "HC-05.c"
+#include "Thermistor.c"
+#include "PIR.c"
+#include "key.c"
+#include "Alarm.c"
+#include "Sound.c"
 // --------END User defined FSMs-----------------------------------------------
 
 // Implement scheduler code from PES.
@@ -54,8 +59,8 @@ int main()
 	DDRD = 0xFF; PORTD = 0x00; // LCD control lines
 	DDRA = 0x00; PORTA = 0xFF;	//input from PIR and Temp Sensor
 	//Declare an array of tasks 
-	static task  task1, task2, task3, task4, task5;
-	task *tasks[] = {  &task1, &task2, &task3, &task4, &task5};
+	static task  task1, task2, task3, task4, task5, task6;
+	task *tasks[] = {  &task1, &task2, &task3, &task4, &task5, &task6};
 	const unsigned short numTasks = sizeof(tasks)/sizeof(task*);
 
 	
@@ -89,10 +94,24 @@ int main()
 	task5.elapsedTime = 1;//Task current elapsed time.
 	task5.TickFct = &Beep_tick;//Function pointer for the tick.
 	
+	// Task 6
+	task6.state = 0;//Task initial state.
+	task6.period = 200;//Task Period.
+	task6.elapsedTime = 1;//Task current elapsed time.
+	task6.TickFct = &BT_tick;//Function pointer for the tick.
+
+	/* Task 7
+	task7.state = 0;//Task initial state.
+	task7.period = 500;//Task Period.
+	task7.elapsedTime = 1;//Task current elapsed time.
+	task7.TickFct = &Temp_tick;//Function pointer for the tick.
+	*/
 	// Set the timer and turn it on
 	TimerSet(1);
 	TimerOn();
 	LCD_init();
+	initUSART();
+	ADC_init();
 	
 	//set_PWM(.9);
 	//initialize eventually in memory
