@@ -7,25 +7,46 @@ void ADC_init() {
 	//        in Free Running Mode, a new conversion will trigger whenever
 	//        the previous conversion completes.
 }
-//enum TempStates{sample}tempstate;
+
+///////////////////////////////////////////////////////////////////////////////
+//Copyright (c) 2010  Chris Lockfort
+int16_t read_analog_input(){
+	ADCSRA = (1<<ADEN) | (1<<ADSC);
+	while (ADCSRA & (1<<ADSC)) ; //block until ready
+	uint8_t lower_byte = ADCL;
+	int16_t ret_val = ADCH << 8;
+	ret_val |= lower_byte;
+	return ret_val;
+}
 
 int Temp_tick(){
 	//tempstate = sample;
 	unsigned char A0 = PINA & 0x01;
-	//switch(tempstate){
+	/*switch(tempstate){
+		
 	//case sample:
 	ADC = (A0 * 1024) / 5 ;
 	unsigned char x = ADC;
 	
 	if(Temp_choice == 'F'){
 		Temp = x;
-		}else{
-		Temp = (x - 32)* (5/9) ;
-	}
-	//break;
-	//default:
-	//tempstate = sample;
-	//break;
+	}else{
+		Temp = (x - 32.0)* (5.0/9.0);
+	}*/
+	//Copyright (c) 2010  Chris Lockfort
 	
-	//}
+	float reading = read_analog_input();
+	// I apologize for the following code, it's based off of an Arduino Playground example
+	// It seems to mumble something about being a 10K-ohm specific version of a Steinhart-Hart Thermistor Equation :-)
+	reading = log(((10240000/reading) - 10000));
+	reading = 1 / (0.001129148 + (0.000234125 * reading) + (0.0000000876741 * reading * reading * reading));
+	reading -= 282.55; //K to C
+	
+	
+	if(Temp_choice == 'F'){
+		Temp = (reading * 9.0)/ 5.0 + 32.0;;
+	}else{
+		Temp = reading;
+	}
+
 }
