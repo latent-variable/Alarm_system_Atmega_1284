@@ -1,4 +1,4 @@
-Alarm system fro the Atmega 1284
+Alarm system for the Atmega 1284
 Using:
 PIR 
 Keypad
