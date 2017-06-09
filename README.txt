@@ -2,7 +2,7 @@ Alarm system for the Atmega 1284
 Using:
 PIR 
 Keypad
-Piozo speaker
-16X2 LCD display 
+Piezo speaker
+16X2 LCD Display 
 Termistor 
 Bluethooth module 
