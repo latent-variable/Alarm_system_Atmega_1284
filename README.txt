@@ -6,3 +6,6 @@ Piezo speaker
 16X2 LCD Display 
 Termistor 
 Bluethooth module 
+
+Report and Pinout Diagram 
+https://drive.google.com/open?id=1ddXWdyIN6UVQ4BJFKXOefWLwOYwPss5lXsLQxooSAFM
