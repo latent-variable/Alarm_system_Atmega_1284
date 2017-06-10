@@ -9,6 +9,23 @@ void ADC_init() {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+//The following code was used and modifyed with permision of  Chris Lockfort
+/* Thermistor reader program for AVR chips
+*  By Chris Lockfort (clockfort@csh.rit.removethispartforspam.edu)
+* 
+*  Basic Schematic:
+*
+*  GND --- 10K ohm normal resistor ---|--- 10K ohm thermistor ---- VCC
+*  				      |
+*  				Microcontroller ADC
+*
+* I haven't back-of-the-napkin'd the math, but I believe you might want to 
+* use a lower-tolerance resistor than you would normally care about.
+*
+* Portions of this code are borrowed from Paul J Stoffregen's sample ADC code,
+* many thanks to him for providing readable examples.
+*/
+
 //Copyright (c) 2010  Chris Lockfort
 int16_t read_analog_input(){
 	ADCSRA = (1<<ADEN) | (1<<ADSC);
